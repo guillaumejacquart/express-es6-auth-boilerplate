@@ -6,6 +6,7 @@ import expressHandlebars from 'express-handlebars';
 import passport from 'passport'
 import session from 'express-session'
 import nedbSession from 'express-nedb-session';
+import flash from 'express-flash'
 import authentication from './authentication'
 import mvcRoutes from './routes';
 import initializeDb from './db';
@@ -35,6 +36,9 @@ app.use(session({
   resave: false,
   saveUninitialized: false
 }))
+
+// initialize flash message
+app.use(flash());
 
 // initialize passportjs
 app.use(passport.initialize())  

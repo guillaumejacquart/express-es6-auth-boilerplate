@@ -1,4 +1,5 @@
 'use strict';
+import bcrypt from 'bcrypt-nodejs';
 
 /**
 * User Model
@@ -8,6 +9,19 @@ class User {
 
 	constructor(db) {
 		this.db = db;
+	}
+	
+	create(username, password, callback){
+		bcrypt.genSalt(10, (err, result) => {
+			var salt = result;
+			bcrypt.hash(password, result, null, (err, hash) => {
+				this.db.insert({
+					username: username,
+					password: hash,
+					salt: salt
+				}, callback)
+			});
+		});
 	}
   
 	find(username, callback) {
@@ -24,14 +38,16 @@ class User {
   
 	isValid(username, password, callback) {
 		this.db.findOne({
-			username: username,
-			password: password
+			username: username
 		}, function(err, doc){
 			if(err){
 				return callback(err);
 			}
 			
-			return callback(null, typeof(doc) !== 'undefined');
+			bcrypt.compare(password, doc.password, function(err, res) {
+				return callback(err, res);
+			});
+			
 		})
 	}
   

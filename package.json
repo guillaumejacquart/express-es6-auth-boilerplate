@@ -35,9 +35,11 @@
   },
   "homepage": "https://github.com/guillaumejacquart/express-es6-auth-boilerplate#readme",
   "dependencies": {
+    "bcrypt-nodejs": "0.0.3",
     "body-parser": "^1.15.2",
     "cors": "^2.8.1",
     "express": "^4.14.0",
+    "express-flash": "0.0.2",
     "express-handlebars": "^3.0.0",
     "express-nedb-session": "^0.1.1",
     "express-session": "^1.14.2",
