@@ -6,11 +6,8 @@ export default ({ config, db }) => {
 
 	// respond with "hello world" when a GET request is made to the homepage
 	app.get('/', function (req, res) {
-		db.insert([{ ip:  req.ip }], function (err, newDoc) {
-			db.find({}, function (err, docs) {
-				res.json(docs);
-			});
-		});
+			console.log(req.user);
+		res.json(req.user);
 	})
 	
 	return app;

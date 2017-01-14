@@ -11,4 +11,9 @@ module.exports = [
     path: '/signup',
     handler: require('./controllers/signup'),
   },
+  {
+    path: '/profile',
+    handler: require('./controllers/profile'),
+    restricted: true
+  },
 ];

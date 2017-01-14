@@ -36,6 +36,18 @@ class User {
 		})
 	}
   
+	findById(id, callback) {
+		this.db.findOne({
+			_id: id
+		}, function(err, doc){
+			if(err){
+				return callback(err);
+			}
+			
+			return callback(null, doc);
+		})
+	}
+  
 	isValid(username, password, callback) {
 		this.db.findOne({
 			username: username

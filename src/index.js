@@ -49,6 +49,9 @@ app.use(cors({
 	exposedHeaders: config.corsHeaders
 }));
 
+// add static handler
+app.use(express.static('assets'));
+
 let jsonParser = bodyParser.json({
 	limit : config.bodyLimit
 });
@@ -58,9 +61,11 @@ let urlencodedParser = bodyParser.urlencoded({ extended: false })
 // connect to db
 initializeDb(db => {
 	
-	// inject db in request
-	app.use((request, response, next) => {
-		request.db = db;
+	// inject db and route in request
+	app.use((req, res, next) => {
+		req.db = db;
+		res.locals.active = {}
+		res.locals.active[req.path.substring(1) || 'home'] = true
 		next();
     });
 	
@@ -71,10 +76,16 @@ initializeDb(db => {
 	app.use(middleware({ config, db }));
 	
 	// MVC router
-	mvcRoutes.forEach(route => app.use(route.path, urlencodedParser, route.handler));
+	mvcRoutes.forEach(route => {
+		if(route.restricted){
+			app.use(route.path, passport.authenticationMiddleware(), urlencodedParser, route.handler);
+		} else{			
+			app.use(route.path, urlencodedParser, route.handler);
+		}
+	});
 
 	// api router
-	app.use('/api', jsonParser, api({ config, db }));
+	app.use('/api', passport.authenticationMiddleware(), jsonParser, api({ config, db }));
 	
 	// handle no route found
 	app.use((req, res, next) => {
