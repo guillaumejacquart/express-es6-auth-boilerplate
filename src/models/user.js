@@ -8,7 +8,7 @@ import bcrypt from 'bcrypt-nodejs';
 class User {
 
 	constructor(db) {
-		this.db = db;
+		this.db = db.users;
 	}
 	
 	create(username, password, callback){

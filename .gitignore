@@ -1,2 +1,4 @@
 /dist
 /node_modules
+/session.db
+/users.db

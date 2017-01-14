@@ -6,7 +6,7 @@ export default ({ config, db }) => {
 
 	// respond with "hello world" when a GET request is made to the homepage
 	app.get('/', function (req, res) {
-			console.log(req.user);
+		console.log(req.user);
 		res.json(req.user);
 	})
 	
