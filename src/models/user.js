@@ -11,15 +11,16 @@ class User {
 		this.db = db.users;
 	}
 	
-	create(username, password, callback){
+	create(username, password, options, callback){
 		bcrypt.genSalt(10, (err, result) => {
 			var salt = result;
 			bcrypt.hash(password, result, null, (err, hash) => {
-				this.db.insert({
-					username: username,
-					password: hash,
-					salt: salt
-				}, callback)
+				var user = options;
+				user.username = username;
+				user.password = password;
+				user.salt = salt;
+				
+				this.db.insert(user, callback)
 			});
 		});
 	}
@@ -62,7 +63,10 @@ class User {
 			
 		})
 	}
-  
+	
+	findOne(options, callback){
+		this.db.findOne(options, callback)
+	}  
 }
 
 module.exports = User;

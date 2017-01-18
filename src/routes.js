@@ -8,6 +8,10 @@ module.exports = [
     handler: require('./controllers/login'),
   },
   {
+    path: '/auth',
+    handler: require('./controllers/auth'),
+  },
+  {
     path: '/signup',
     handler: require('./controllers/signup'),
   },

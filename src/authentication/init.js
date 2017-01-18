@@ -1,15 +1,12 @@
 import passport from 'passport'
 import LocalStrategy from 'passport-local'
+import { Strategy as FacebookStrategy } from 'passport-facebook';  
 import passportJWT from "passport-jwt"
 import UserModel from '../models/user'
 import cfg from "../config.json"
 
-var ExtractJwt = passportJWT.ExtractJwt;
-var JwtStrategy = passportJWT.Strategy;
-var params = {
-  secretOrKey: cfg.jwtSecret,
-  jwtFromRequest: ExtractJwt.fromAuthHeader()
-};
+let ExtractJwt = passportJWT.ExtractJwt;
+let JwtStrategy = passportJWT.Strategy;
 
 const authenticationMiddleware = require('./middleware')
 var User;
@@ -62,7 +59,7 @@ function initPassport(db) {
         if (user) {
           return done(null, false, req.flash('signupMessage', 'That username is already taken.'));
         } else {
-          User.create(username, password, function (err, user) {
+          User.create(username, password, {}, function (err, user) {
             return done(err, user);
           });
         }
@@ -70,6 +67,12 @@ function initPassport(db) {
       });
 
     }));
+	
+	
+	let params = {
+		secretOrKey: cfg.jwtSecret,
+		jwtFromRequest: ExtractJwt.fromAuthHeader()
+	};
 
   passport.use(new JwtStrategy(params, function (payload, done) {
     User.findById(payload.id, function (err, user) {
@@ -80,6 +83,37 @@ function initPassport(db) {
       }
     })
   }));
+  
+  if(cfg.facebookAuth){	 
+	  passport.use(new FacebookStrategy({  
+		clientID: cfg.facebookAuth.clientID,
+		clientSecret: cfg.facebookAuth.clientSecret,
+		callbackURL: cfg.facebookAuth.callbackURL,
+		profileFields: ['id', 'email', 'first_name', 'last_name'],
+	  },
+	  function(token, refreshToken, profile, done) {
+		process.nextTick(function() {
+		  User.findOne({ 'facebook.id': profile.id }, function(err, user) {
+			if (err)
+			  return done(err);
+			if (user) {
+			  return done(null, user);
+			} else {
+			  User.create(profile.id, '', {
+				  facebook: {
+					  id: profile.id,
+					  token: token,
+					  name: profile.name.givenName + ' ' + profile.name.familyName,
+					  email: (profile.emails[0].value || '').toLowerCase()
+				  }
+			  }, function (err, user) {
+				return done(err, user);
+			  });
+			}
+		  });
+		});
+	  }));
+  }
 
 
   passport.authenticationMiddleware = authenticationMiddleware
